@@ -79,6 +79,7 @@ namespace royal_car_rentals_web_api.Controllers
         {
             inquiry.DateAdded = DateTime.Now;
             inquiry.DateUpdated = DateTime.Now;
+
             _context.Inquiries.Add(inquiry);
             await _context.SaveChangesAsync();
 

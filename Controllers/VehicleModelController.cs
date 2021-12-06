@@ -24,7 +24,7 @@ namespace royal_car_rentals_web_api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<VehicleModel>>> GetVehicleModels()
         {
-            var __vehicleModels = (from _models in _context.VehicleModels
+            var __vehicleModels = await (from _models in _context.VehicleModels
                                    join _maker in _context.VehicleMakers on _models.MakerId equals _maker.Id
                                    select new VehicleModel()
                                    {
@@ -34,7 +34,7 @@ namespace royal_car_rentals_web_api.Controllers
                                        DateAdded = _models.DateAdded,
                                        DateUpdated = _models.DateUpdated,
                                        Maker = _maker
-                                   }).ToList();
+                                   }).ToListAsync();
 
             return __vehicleModels;
         }
@@ -61,6 +61,8 @@ namespace royal_car_rentals_web_api.Controllers
             {
                 return BadRequest();
             }
+     
+            vehicleModel.DateUpdated = DateTime.Now;
 
             _context.Entry(vehicleModel).State = EntityState.Modified;
 
@@ -98,6 +100,9 @@ namespace royal_car_rentals_web_api.Controllers
         [HttpPost]
         public async Task<ActionResult<VehicleModel>> PostVehicleModel(VehicleModel vehicleModel)
         {
+            vehicleModel.DateAdded = DateTime.Now;
+            vehicleModel.DateUpdated = DateTime.Now;
+
             _context.VehicleModels.Add(vehicleModel);
             await _context.SaveChangesAsync();
 

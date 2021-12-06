@@ -11,23 +11,23 @@ namespace royal_car_rentals_web_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CitiyController : ControllerBase
+    public class CityController : ControllerBase
     {
         private readonly RoyalCarRentalsDBContext _context;
 
-        public CitiyController(RoyalCarRentalsDBContext context)
+        public CityController(RoyalCarRentalsDBContext context)
         {
             _context = context;
         }
 
-        // GET: api/Citiy
+        // GET: api/City
         [HttpGet]
         public async Task<ActionResult<IEnumerable<City>>> GetCities()
         {
             return await _context.Cities.ToListAsync();
         }
 
-        // GET: api/Citiy/5
+        // GET: api/City/5
         [HttpGet("{id}")]
         public async Task<ActionResult<City>> GetCity(int id)
         {
@@ -41,7 +41,7 @@ namespace royal_car_rentals_web_api.Controllers
             return city;
         }
 
-        // PUT: api/Citiy/5
+        // PUT: api/City/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCity(int id, City city)
@@ -50,6 +50,8 @@ namespace royal_car_rentals_web_api.Controllers
             {
                 return BadRequest();
             }
+           
+            city.DateUpdated = DateTime.Now;
 
             _context.Entry(city).State = EntityState.Modified;
 
@@ -72,18 +74,21 @@ namespace royal_car_rentals_web_api.Controllers
             return NoContent();
         }
 
-        // POST: api/Citiy
+        // POST: api/City
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<City>> PostCity(City city)
         {
+            city.DateAdded = DateTime.Now;
+            city.DateUpdated = DateTime.Now;
+
             _context.Cities.Add(city);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetCity", new { id = city.Id }, city);
         }
 
-        // DELETE: api/Citiy/5
+        // DELETE: api/City/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCity(int id)
         {

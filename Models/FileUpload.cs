@@ -4,6 +4,6 @@
     {
         public List<IFormFile>? Files { get; set; }
 
-        public string Info { get; set; }
+        public string? Info { get; set; }
     }
 }

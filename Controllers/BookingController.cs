@@ -28,12 +28,14 @@ namespace royal_car_rentals_web_api.Controllers
 
             var result = await (from _booking in _context.Bookings
                                 join customer in _context.Customers on _booking.CustomerId equals customer.Id
+                                join _city in _context.Cities on _booking.CityId equals _city.Id
                                 select new Booking()
                                 {
                                     Id = _booking.Id,
                                     CustomerId = _booking.CustomerId,
                                     DriverId = _booking.DriverId,
                                     VehicleId = _booking.VehicleId,
+                                    CityId = _booking.CityId,
                                     Status = _booking.Status,
                                     WithDriver = _booking.WithDriver,
                                     StartDate = _booking.StartDate,
@@ -44,7 +46,8 @@ namespace royal_car_rentals_web_api.Controllers
                                     DateUpdated = _booking.DateUpdated,
                                     Customer = customer,
                                     Vehicle = null,
-                                    Driver = null
+                                    Driver = null,
+                                    City = _city
                                 }).ToListAsync();
 
 
@@ -56,7 +59,7 @@ namespace royal_car_rentals_web_api.Controllers
                 var vehicle = (from _vehicle in _context.Vehicles
                                join _maker in _context.VehicleMakers on _vehicle.MakerId equals _maker.Id
                                join _model in _context.VehicleModels on _vehicle.ModelId equals _model.Id
-                               join _city in _context.Cities on _vehicle.CityId equals _city.Id
+                               
                                select new Vehicle()
                                {
                                    Id = _vehicle.Id,
@@ -73,8 +76,7 @@ namespace royal_car_rentals_web_api.Controllers
                                    DateAdded = _vehicle.DateAdded,
                                    DateUpdated = _vehicle.DateUpdated,
                                    Maker = _maker,
-                                   Model = _model,
-                                   City = _city
+                                   Model = _model,                                 
                                }).Where(a => a.Id == item.VehicleId).FirstOrDefault();
 
                 item.Vehicle = vehicle;
@@ -95,33 +97,66 @@ namespace royal_car_rentals_web_api.Controllers
                 return NotFound();
             }
 
+            if ((bool)booking.WithDriver) {
+                var result = await (from _booking in _context.Bookings
+                                    join customer in _context.Customers on _booking.CustomerId equals customer.Id
+                                    join vehicle in _context.Vehicles on _booking.VehicleId equals vehicle.Id
+                                    join driver in _context.Drivers on _booking.DriverId equals driver.Id
+                                    join _city in _context.Cities on _booking.CityId equals _city.Id
+                                    select new Booking()
+                                    {
+                                        Id = _booking.Id,
+                                        CustomerId = _booking.CustomerId,
+                                        DriverId = _booking.DriverId,
+                                        VehicleId = _booking.VehicleId,
+                                        CityId = _booking.CityId,
+                                        Status = _booking.Status,
+                                        WithDriver = _booking.WithDriver,
+                                        StartDate = _booking.StartDate,
+                                        StartTime = _booking.StartTime,
+                                        EndDate = _booking.EndDate,
+                                        EndTime = _booking.EndTime,
+                                        DateAdded = _booking.DateAdded,
+                                        DateUpdated = _booking.DateUpdated,
+                                        Customer = customer,
+                                        Vehicle = vehicle,
+                                        Driver = driver,
+                                        City = _city
+                                    }).Where(a => a.Id == id).FirstOrDefaultAsync();
 
-            var result = (from _booking in _context.Bookings
-                          join customer in _context.Customers on _booking.CustomerId equals customer.Id
-                          join vehicle in _context.Vehicles on _booking.VehicleId equals vehicle.Id
-                          join driver in _context.Drivers on _booking.DriverId equals driver.Id
 
-                          select new Booking()
-                          {
-                              Id = _booking.Id,
-                              CustomerId = _booking.CustomerId,
-                              DriverId = _booking.DriverId,
-                              VehicleId = _booking.VehicleId,
-                              Status = _booking.Status,
-                              WithDriver = _booking.WithDriver,
-                              StartDate = _booking.StartDate,
-                              StartTime = _booking.StartTime,
-                              EndDate = _booking.EndDate,
-                              EndTime = _booking.EndTime,
-                              DateAdded = _booking.DateAdded,
-                              DateUpdated = _booking.DateUpdated,
-                              Customer = customer,
-                              Vehicle = vehicle,
-                              Driver = driver
-                          }).Where(a => a.Id == id).FirstOrDefault();
+                return result;
+            }
+            else
+            {
+                var result = await (from _booking in _context.Bookings
+                                    join customer in _context.Customers on _booking.CustomerId equals customer.Id
+                                    join vehicle in _context.Vehicles on _booking.VehicleId equals vehicle.Id
+                                    join _city in _context.Cities on _booking.CityId equals _city.Id
+                                    select new Booking()
+                                    {
+                                        Id = _booking.Id,
+                                        CustomerId = _booking.CustomerId,
+                                        DriverId = _booking.DriverId,
+                                        VehicleId = _booking.VehicleId,
+                                        CityId = _booking.CityId,
+                                        Status = _booking.Status,
+                                        WithDriver = _booking.WithDriver,
+                                        StartDate = _booking.StartDate,
+                                        StartTime = _booking.StartTime,
+                                        EndDate = _booking.EndDate,
+                                        EndTime = _booking.EndTime,
+                                        DateAdded = _booking.DateAdded,
+                                        DateUpdated = _booking.DateUpdated,
+                                        Customer = customer,
+                                        Vehicle = vehicle,
+                                        Driver = null,
+                                        City = _city
+                                    }).Where(a => a.Id == id).FirstOrDefaultAsync();
 
 
-            return result;
+                return result;
+            }            
         }
 
         // PUT: api/Booking/5      
@@ -132,6 +167,11 @@ namespace royal_car_rentals_web_api.Controllers
             {
                 return BadRequest();
             }
+
+            booking.Customer = null;
+            booking.Driver = null;
+            booking.Vehicle = null;
+            booking.City = null;            
 
             booking.DateUpdated = DateTime.Now;
             _context.Entry(booking).State = EntityState.Modified;
@@ -167,6 +207,7 @@ namespace royal_car_rentals_web_api.Controllers
             booking.Customer = null;
             booking.Driver = null;
             booking.Vehicle = null;
+            booking.City = null;
 
 
             _context.Bookings.Add(booking);

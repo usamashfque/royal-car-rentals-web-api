@@ -25,14 +25,21 @@ namespace royal_car_rentals_web_api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Driver>>> GetDrivers()
         {
-            return await _context.Drivers.Where(d => d.Id != 1).ToListAsync();
+            return await _context.Drivers.ToListAsync();
+        }
+
+        // GET: api/Driver/searchbycity/5
+        [HttpGet("searchbycity/{cityId}")]
+        public async Task<ActionResult<IEnumerable<Driver>>> GetDriversByCityId(int cityId)
+        {
+            return await _context.Drivers.Where(a=>a.CityId == cityId).ToListAsync();
         }
 
         // GET api/Driver/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Driver>> GetDriver(int id)
         {
-            Driver driver = await _context.Drivers.FindAsync(id);
+            var driver = await _context.Drivers.FindAsync(id);
 
             if (driver == null)
             {
@@ -46,9 +53,13 @@ namespace royal_car_rentals_web_api.Controllers
         [HttpPost]
         public async Task<ActionResult<Driver>> PostVehicle([FromForm] FileUpload formdata)
         {
+            #pragma warning disable CS8604 // Possible null reference argument.
             var driver = JsonConvert.DeserializeObject<Driver>(formdata.Info);
+            #pragma warning restore CS8604 // Possible null reference argument.
 
+            #pragma warning disable CS8602 // Dereference of a possibly null reference.
             driver.City = null;
+            #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
             driver.DateAdded = DateTime.Now;
             driver.DateUpdated = DateTime.Now;
@@ -189,10 +200,10 @@ namespace royal_car_rentals_web_api.Controllers
         {
             DriverCounts driverCounts = new DriverCounts();
 
-            driverCounts.ActiveDrivers = await _context.Drivers.Where(a => a.Id != 1 && a.IsActive == true).CountAsync();
-            driverCounts.InActiveDrivers = await _context.Drivers.Where(a => a.Id != 1 && a.IsActive == false).CountAsync();
-            driverCounts.AvailableDrivers = await _context.Drivers.Where(a => a.Id != 1 && a.Availability == true && a.IsActive == true).CountAsync();
-            driverCounts.BookedDrivers = await _context.Drivers.Where(a => a.Id != 1 && a.Availability == false && a.IsActive == true).CountAsync();
+            driverCounts.ActiveDrivers = await _context.Drivers.Where(a => a.IsActive == true).CountAsync();
+            driverCounts.InActiveDrivers = await _context.Drivers.Where(a => a.IsActive == false).CountAsync();
+            driverCounts.AvailableDrivers = await _context.Drivers.Where(a => a.Availability == true && a.IsActive == true).CountAsync();
+            driverCounts.BookedDrivers = await _context.Drivers.Where(a => a.Availability == false && a.IsActive == true).CountAsync();
 
             return driverCounts;
         }

@@ -49,6 +49,8 @@ namespace royal_car_rentals_web_api.Controllers
             {
                 return BadRequest();
             }
+            
+            vehicleMaker.DateUpdated = DateTime.Now;
 
             _context.Entry(vehicleMaker).State = EntityState.Modified;
 
@@ -75,6 +77,8 @@ namespace royal_car_rentals_web_api.Controllers
         [HttpPost]
         public async Task<ActionResult<VehicleMaker>> PostVehicleMaker(VehicleMaker vehicleMaker)
         {
+            vehicleMaker.DateAdded = DateTime.Now;
+            vehicleMaker.DateUpdated = DateTime.Now;
             _context.VehicleMakers.Add(vehicleMaker);
             await _context.SaveChangesAsync();
 

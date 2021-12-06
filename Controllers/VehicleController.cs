@@ -249,7 +249,7 @@ namespace royal_car_rentals_web_api.Controllers
                             //string fileNameXX = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
 
                             //vehicleOld.MakerId.ToString() +
-                            string fileName = vehicleOld.ModelId.ToString() + vehicleOld.ModelYear + "" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + "" + Path.GetExtension(file.FileName);
+                            string fileName = $"{vehicleOld.ModelId.ToString()}{vehicleOld.ModelYear}{DateTime.Now.ToString("yyyyMMddHHmmssfff")}{Path.GetExtension(file.FileName)}";
 
                             string fullPath = Path.Combine(path, fileName);
 
@@ -271,13 +271,11 @@ namespace royal_car_rentals_web_api.Controllers
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-
                     throw;
                 }
             }
-
 
             vehicleOld.DateUpdated = DateTime.Now;
 
