@@ -50,9 +50,12 @@ namespace royal_car_rentals_web_api.Controllers
             {
                 return BadRequest();
             }
-           
-            city.DateUpdated = DateTime.Now;
 
+            city.Bookings = null;
+            city.Drivers = null;
+            city.Vehicles = null;
+             
+            city.DateUpdated = DateTime.Now;
             _context.Entry(city).State = EntityState.Modified;
 
             try
@@ -81,6 +84,10 @@ namespace royal_car_rentals_web_api.Controllers
         {
             city.DateAdded = DateTime.Now;
             city.DateUpdated = DateTime.Now;
+
+            city.Bookings = null;
+            city.Drivers = null;
+            city.Vehicles = null;
 
             _context.Cities.Add(city);
             await _context.SaveChangesAsync();

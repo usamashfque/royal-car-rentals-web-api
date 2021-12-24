@@ -382,42 +382,150 @@ namespace royal_car_rentals_web_api.Controllers
             return __vehicles;
         }
 
-        // GET api/<VehicleController>/bymaker/honda
-        [HttpGet("bymaker/{makerId}")]
-        public async Task<ActionResult<IEnumerable<Vehicle>>> GetVehicleByMakerName(int makerId)
+        // GET api/<VehicleController>/bymaker/1/5/2012
+        [HttpGet("filtervehicles/{makerId}/{modelId}/{modelYear}")]
+        public async Task<ActionResult<IEnumerable<Vehicle>>> GetFilterVehicles(int makerId, int modelId, int modelYear)
         {
             // var vehicle = await _dbContext.Vehicles.Where(a => a.MakerId == makerId).ToListAsync();
 
-            var vehicles = (from _vehicle in _context.Vehicles
-                            join _maker in _context.VehicleMakers on _vehicle.MakerId equals _maker.Id
-                            join _model in _context.VehicleModels on _vehicle.ModelId equals _model.Id
-                            join _city in _context.Cities on _vehicle.CityId equals _city.Id
-                            select new Vehicle()
-                            {
-                                Id = _vehicle.Id,
-                                MakerId = _vehicle.MakerId,
-                                ModelId = _vehicle.ModelId,
-                                CityId = _vehicle.CityId,
-                                ModelYear = _vehicle.ModelYear,
-                                RegistrationNumber = _vehicle.RegistrationNumber,
-                                Color = _vehicle.Color,
-                                Status = _vehicle.Status,
-                                Availability = _vehicle.Availability,
-                                Price = _vehicle.Price,
-                                ImagesPath = _vehicle.ImagesPath,
-                                DateAdded = _vehicle.DateAdded,
-                                DateUpdated = _vehicle.DateUpdated,
-                                Maker = _maker,
-                                Model = _model,
-                                City = _city
-                            }).Where(a => a.MakerId == makerId && a.Status == "approved").ToList();
-
-            if (vehicles == null)
+            if (makerId != 0 && modelId == 0 && modelYear == 0)
             {
-                return NotFound();
+                var vehicles = await (from _vehicle in _context.Vehicles
+                                      join _maker in _context.VehicleMakers on _vehicle.MakerId equals _maker.Id
+                                      join _model in _context.VehicleModels on _vehicle.ModelId equals _model.Id
+                                      join _city in _context.Cities on _vehicle.CityId equals _city.Id
+                                      select new Vehicle()
+                                      {
+                                          Id = _vehicle.Id,
+                                          MakerId = _vehicle.MakerId,
+                                          ModelId = _vehicle.ModelId,
+                                          CityId = _vehicle.CityId,
+                                          ModelYear = _vehicle.ModelYear,
+                                          RegistrationNumber = _vehicle.RegistrationNumber,
+                                          Color = _vehicle.Color,
+                                          Status = _vehicle.Status,
+                                          Availability = _vehicle.Availability,
+                                          Price = _vehicle.Price,
+                                          ImagesPath = _vehicle.ImagesPath,
+                                          DateAdded = _vehicle.DateAdded,
+                                          DateUpdated = _vehicle.DateUpdated,
+                                          Maker = _maker,
+                                          Model = _model,
+                                          City = _city
+                                      }).Where(a => a.MakerId == makerId && a.Status == "approved").ToListAsync();
+
+                if (vehicles == null)
+                {
+                    return NotFound();
+                }
+
+                return vehicles;
+            }
+            else if (makerId != 0 && modelId != 0 && modelYear == 0)
+            {
+
+                var vehicles = await (from _vehicle in _context.Vehicles
+                                      join _maker in _context.VehicleMakers on _vehicle.MakerId equals _maker.Id
+                                      join _model in _context.VehicleModels on _vehicle.ModelId equals _model.Id
+                                      join _city in _context.Cities on _vehicle.CityId equals _city.Id
+                                      select new Vehicle()
+                                      {
+                                          Id = _vehicle.Id,
+                                          MakerId = _vehicle.MakerId,
+                                          ModelId = _vehicle.ModelId,
+                                          CityId = _vehicle.CityId,
+                                          ModelYear = _vehicle.ModelYear,
+                                          RegistrationNumber = _vehicle.RegistrationNumber,
+                                          Color = _vehicle.Color,
+                                          Status = _vehicle.Status,
+                                          Availability = _vehicle.Availability,
+                                          Price = _vehicle.Price,
+                                          ImagesPath = _vehicle.ImagesPath,
+                                          DateAdded = _vehicle.DateAdded,
+                                          DateUpdated = _vehicle.DateUpdated,
+                                          Maker = _maker,
+                                          Model = _model,
+                                          City = _city
+                                      }).Where(a => a.MakerId == makerId && a.ModelId == modelId && a.Status == "approved").ToListAsync();
+
+                if (vehicles == null)
+                {
+                    return NotFound();
+                }
+
+                return vehicles;
+            }
+            else if (makerId != 0 && modelId == 0 && modelYear != 0)
+            {
+
+                var vehicles = await (from _vehicle in _context.Vehicles
+                                      join _maker in _context.VehicleMakers on _vehicle.MakerId equals _maker.Id
+                                      join _model in _context.VehicleModels on _vehicle.ModelId equals _model.Id
+                                      join _city in _context.Cities on _vehicle.CityId equals _city.Id
+                                      select new Vehicle()
+                                      {
+                                          Id = _vehicle.Id,
+                                          MakerId = _vehicle.MakerId,
+                                          ModelId = _vehicle.ModelId,
+                                          CityId = _vehicle.CityId,
+                                          ModelYear = _vehicle.ModelYear,
+                                          RegistrationNumber = _vehicle.RegistrationNumber,
+                                          Color = _vehicle.Color,
+                                          Status = _vehicle.Status,
+                                          Availability = _vehicle.Availability,
+                                          Price = _vehicle.Price,
+                                          ImagesPath = _vehicle.ImagesPath,
+                                          DateAdded = _vehicle.DateAdded,
+                                          DateUpdated = _vehicle.DateUpdated,
+                                          Maker = _maker,
+                                          Model = _model,
+                                          City = _city
+                                      }).Where(a => a.MakerId == makerId && a.ModelYear == modelYear && a.Status == "approved").ToListAsync();
+
+                if (vehicles == null)
+                {
+                    return NotFound();
+                }
+
+                return vehicles;
+            }
+            else  
+            {
+                var vehicles = await (from _vehicle in _context.Vehicles
+                                      join _maker in _context.VehicleMakers on _vehicle.MakerId equals _maker.Id
+                                      join _model in _context.VehicleModels on _vehicle.ModelId equals _model.Id
+                                      join _city in _context.Cities on _vehicle.CityId equals _city.Id
+                                      select new Vehicle()
+                                      {
+                                          Id = _vehicle.Id,
+                                          MakerId = _vehicle.MakerId,
+                                          ModelId = _vehicle.ModelId,
+                                          CityId = _vehicle.CityId,
+                                          ModelYear = _vehicle.ModelYear,
+                                          RegistrationNumber = _vehicle.RegistrationNumber,
+                                          Color = _vehicle.Color,
+                                          Status = _vehicle.Status,
+                                          Availability = _vehicle.Availability,
+                                          Price = _vehicle.Price,
+                                          ImagesPath = _vehicle.ImagesPath,
+                                          DateAdded = _vehicle.DateAdded,
+                                          DateUpdated = _vehicle.DateUpdated,
+                                          Maker = _maker,
+                                          Model = _model,
+                                          City = _city
+                                      }).Where(a => a.MakerId == makerId && a.ModelId == modelId && a.ModelYear == modelYear && a.Status == "approved").ToListAsync();
+
+                if (vehicles == null)
+                {
+                    return NotFound();
+                }
+
+                return vehicles;
+
             }
 
-            return vehicles;
+
+            
         }
 
         // GET: api/<VehicleController>/counts

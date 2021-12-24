@@ -25,16 +25,36 @@ namespace royal_car_rentals_web_api.Controllers
         public async Task<ActionResult<IEnumerable<VehicleModel>>> GetVehicleModels()
         {
             var __vehicleModels = await (from _models in _context.VehicleModels
-                                   join _maker in _context.VehicleMakers on _models.MakerId equals _maker.Id
-                                   select new VehicleModel()
-                                   {
-                                       Id = _models.Id,
-                                       MakerId = _models.MakerId,
-                                       DisplayName = _models.DisplayName,
-                                       DateAdded = _models.DateAdded,
-                                       DateUpdated = _models.DateUpdated,
-                                       Maker = _maker
-                                   }).ToListAsync();
+                                         join _maker in _context.VehicleMakers on _models.MakerId equals _maker.Id
+                                         select new VehicleModel()
+                                         {
+                                             Id = _models.Id,
+                                             MakerId = _models.MakerId,
+                                             DisplayName = _models.DisplayName,
+                                             DateAdded = _models.DateAdded,
+                                             DateUpdated = _models.DateUpdated,
+                                             Maker = _maker
+                                         }).ToListAsync();
+
+            return __vehicleModels;
+        }
+
+
+        // GET: api/VehicleModel/getbymakerid
+        [HttpGet("getbymakerid/{id}")]
+        public async Task<ActionResult<IEnumerable<VehicleModel>>> GetVehicleModelsByMakerId(int id)
+        {
+            var __vehicleModels = await (from _models in _context.VehicleModels
+                                         join _maker in _context.VehicleMakers on _models.MakerId equals _maker.Id
+                                         select new VehicleModel()
+                                         {
+                                             Id = _models.Id,
+                                             MakerId = _models.MakerId,
+                                             DisplayName = _models.DisplayName,
+                                             DateAdded = _models.DateAdded,
+                                             DateUpdated = _models.DateUpdated,
+                                             Maker = _maker
+                                         }).Where(w => w.MakerId == id).ToListAsync();
 
             return __vehicleModels;
         }
@@ -61,7 +81,7 @@ namespace royal_car_rentals_web_api.Controllers
             {
                 return BadRequest();
             }
-     
+
             vehicleModel.DateUpdated = DateTime.Now;
 
             _context.Entry(vehicleModel).State = EntityState.Modified;
