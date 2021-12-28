@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using royal_car_rentals_web_api.Models;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
+using Twilio.Types;
 
 namespace royal_car_rentals_web_api.Controllers
 {
@@ -251,7 +254,7 @@ namespace royal_car_rentals_web_api.Controllers
             return customerCount;
         }
 
-        // PUT: api/Customer/5
+        // PUT: api/Customer/changepassword/5
         [HttpPut("changepassword/{id}")]
         public async Task<ActionResult<Customer>> ChangeCustomerPassword(int id, [FromBody] ChangePassword param)
         {
@@ -289,6 +292,50 @@ namespace royal_car_rentals_web_api.Controllers
             }
 
             customer.Password = null;
+
+            return customer;
+        }
+
+        // GET: api/Customer/sendforgotpasswordcode/{email}
+        [HttpGet("sendforgotpasswordcode/{email}")]
+        public async Task<ActionResult<Customer>> SendForgotPasswordCode(string email)
+        {
+            var customer = await _context.Customers.Where(c => c.Email == email).FirstOrDefaultAsync();
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            int num = new Random().Next(1000, 9999);          
+
+
+            string accountSid = "ACcd9b962dccb23e33e39f1098b383e6cd"; //Environment.GetEnvironmentVariable("TWILIO_ACCOUNT_SID");
+            string authToken = "538aac5f3f11168670b5c2d4db274136"; //Environment.GetEnvironmentVariable("TWILIO_AUTH_TOKEN");
+
+            TwilioClient.Init(accountSid, authToken);
+
+            var message = MessageResource.Create(
+                body: "Your verification code is: " + num,
+                from: new Twilio.Types.PhoneNumber("+18505346063"),
+                to: new Twilio.Types.PhoneNumber("+923025613316")
+            );
+
+            return customer;
+        }
+
+        // POST: api/Customer/verifyforgotpasswordcode
+        [HttpGet("verifyforgotpasswordcode/{email}/{code}")]
+        public async Task<ActionResult<Customer>> VerifyForgotPasswordCode(string email, int code)
+        {
+            var customer = await _context.Customers.Where(c => c.Email == email).FirstOrDefaultAsync();
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            
 
             return customer;
         }
