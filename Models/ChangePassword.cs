@@ -4,5 +4,7 @@
     {
         public string? OldPassword { get; set; }
         public string? NewPassword { get; set; }
+
+        public bool IsResetPassword { get; set; }
     }
 }

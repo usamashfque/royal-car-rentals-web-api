@@ -26,6 +26,7 @@ namespace royal_car_rentals_web_api.Models
         public virtual DbSet<Vehicle> Vehicles { get; set; } = null!;
         public virtual DbSet<VehicleMaker> VehicleMakers { get; set; } = null!;
         public virtual DbSet<VehicleModel> VehicleModels { get; set; } = null!;
+        public virtual DbSet<VerificationCode> VerificationCodes { get; set; } = null!;
 
 //        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 //        {
@@ -233,6 +234,13 @@ namespace royal_car_rentals_web_api.Models
                     .HasForeignKey(d => d.MakerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_VehicleModels_VehicleMakers");
+            });
+
+            modelBuilder.Entity<VerificationCode>(entity =>
+            {
+                entity.Property(e => e.DateAdded).HasColumnType("datetime");
+
+                entity.Property(e => e.DateUpdated).HasColumnType("datetime");
             });
 
             OnModelCreatingPartial(modelBuilder);
