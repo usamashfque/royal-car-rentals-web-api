@@ -178,6 +178,10 @@ namespace royal_car_rentals_web_api.Controllers
             _context.Customers.Add(customer);
             await _context.SaveChangesAsync();
 
+            //send verification code via email to customer             
+            //await SendVerificationEmail(customer);
+
+
             return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
         }
 
@@ -193,6 +197,9 @@ namespace royal_car_rentals_web_api.Controllers
             await _context.SaveChangesAsync();
 
             customer.Password = null;
+
+            //send verification code via email to customer             
+            await SendVerificationEmail(customer);
 
             return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
         }
@@ -276,8 +283,6 @@ namespace royal_car_rentals_web_api.Controllers
             }
 
 
-
-
             customer.Password = param.NewPassword;
             customer.DateUpdated = DateTime.Now;
 
@@ -315,28 +320,117 @@ namespace royal_car_rentals_web_api.Controllers
                 return NotFound();
             }
 
+            //send verification code via sms
+            //await SendVerificationCode(customer);
+
+            customer.Password = null;
+
+            return customer;
+        }
+
+        // POST: api/Customer/verifyforgotpasswordcode
+        [HttpGet("verifyforgotpasswordcode/{email}/{code}")]
+        public async Task<ActionResult<Customer>> VerifyForgotPasswordCode(string email, int code)
+        {
+            var customer = await _context.Customers.Where(c => c.Email == email).FirstOrDefaultAsync();
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            var _verificationCode = await _context.VerificationCodes.Where(c => c.CustomerId == customer.Id).FirstOrDefaultAsync();
+
+            if (_verificationCode == null)
+            {
+                return NotFound();
+            }
+
+            if (_verificationCode.Code != code)
+            {
+                return NotFound();
+            }
+
+            customer.Password = null;
+
+            return customer;
+        }
+
+        [HttpPost("SendVerificationEmail")]
+        public async Task<ActionResult<String>> SendVerificationEmail(Customer customer)
+        {            
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
             int code = new Random().Next(1000, 9999);
 
-            //var apiKey = "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";
-            //var client = new SendGridClient(apiKey);
-            //var from = new EmailAddress("usamashafique302@gmail.com", "Royal Car Rentals");
-            //var subject = "Sending with SendGrid is Fun";
-            //var to = new EmailAddress("usamashafique302@gmail.com", customer.FirstName+ customer.LastName);
-            //var plainTextContent = "and easy to do anywhere, even with C#";
-            //var htmlContent = "<strong>and easy to do anywhere, even with C#</strong>";
-            //var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
-            //var response = await client.SendEmailAsync(msg);
+            var apiKey = "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";
+            var client = new SendGridClient(apiKey);
+            var from = new EmailAddress("usamashafique302@gmail.com", "Royal Car Rentals");
+            var subject = "Email Verification Code";
+            var to = new EmailAddress(customer.Email, customer.FirstName + customer.LastName);
 
-            //string accountSid = "ACcd9b962dccb23e33e39f1098b383e6cd"; //Environment.GetEnvironmentVariable("TWILIO_ACCOUNT_SID");
-            //string authToken = "538aac5f3f11168670b5c2d4db274136"; //Environment.GetEnvironmentVariable("TWILIO_AUTH_TOKEN");
+            var plainTextContent = "";
+            var htmlContent = "<p>Hi " + customer.FirstName +" "+ customer.LastName + ",<br><br>We just need to verify your email address before you can book any vehicle.<br>Verify your email address by using verification code.<br><br><strong> Verification Code is " + code + " </strong><br><br>Best regards, <br>Royal Car Rentals</p>";
 
-            //TwilioClient.Init(accountSid, authToken);
+            var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+            var response = await client.SendEmailAsync(msg);            
 
-            //var message = MessageResource.Create(
-            //    body: "Your verification code is: " + code,
-            //    from: new Twilio.Types.PhoneNumber("+18505346063"),
-            //    to: new Twilio.Types.PhoneNumber("+923025613316")
-            //);
+            var _verificationCode = await _context.VerificationCodes.Where(c => c.CustomerId == customer.Id).FirstOrDefaultAsync();
+
+
+            if (_verificationCode == null)
+            {
+
+                VerificationCode verificationCode = new VerificationCode();
+                verificationCode.CustomerId = customer.Id;
+                verificationCode.Code = code;
+                verificationCode.Count = 1;
+                verificationCode.DateAdded = DateTime.Now;
+                verificationCode.DateUpdated = DateTime.Now;
+
+                _context.VerificationCodes.Add(verificationCode);
+            }
+            else
+            {
+                _verificationCode.Code = code;
+                _verificationCode.Count = _verificationCode.Count + 1;
+                _verificationCode.DateUpdated = DateTime.Now;
+
+                _context.Entry(_verificationCode).State = EntityState.Modified;
+            }
+
+            await _context.SaveChangesAsync();
+
+             
+
+            return "OK";
+        }
+
+        [HttpPost("SendVerificationCode")]
+        public async Task<ActionResult<String>> SendVerificationCode(Customer customer)
+        {
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            //send verification email to customer
+
+            int code = new Random().Next(1000, 9999);
+
+            string accountSid = "ACcd9b962dccb23e33e39f1098b383e6cd"; //Environment.GetEnvironmentVariable("TWILIO_ACCOUNT_SID");
+            string authToken = "538aac5f3f11168670b5c2d4db274136"; //Environment.GetEnvironmentVariable("TWILIO_AUTH_TOKEN");
+
+            TwilioClient.Init(accountSid, authToken);
+
+            var message = MessageResource.Create(
+                body: "Hello "+ customer.FirstName + customer.LastName + ". Your verification code is: " + code,
+                from: new Twilio.Types.PhoneNumber("+18505346063"),
+                to: new Twilio.Types.PhoneNumber("+923025613316")
+            );
 
             var _verificationCode = await _context.VerificationCodes.Where(c => c.CustomerId == customer.Id).FirstOrDefaultAsync();
 
@@ -365,33 +459,8 @@ namespace royal_car_rentals_web_api.Controllers
             await _context.SaveChangesAsync();
 
 
-            return customer;
-        }
 
-        // POST: api/Customer/verifyforgotpasswordcode
-        [HttpGet("verifyforgotpasswordcode/{email}/{code}")]
-        public async Task<ActionResult<Customer>> VerifyForgotPasswordCode(string email, int code)
-        {
-            var customer = await _context.Customers.Where(c => c.Email == email).FirstOrDefaultAsync();
-
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
-            var _verificationCode = await _context.VerificationCodes.Where(c => c.CustomerId == customer.Id).FirstOrDefaultAsync();
-
-            if (_verificationCode == null)
-            {
-                return NotFound();
-            }
-
-            if (_verificationCode.Code != code)
-            {
-                return NotFound();
-            }
-
-            return customer;
+            return "OK";
         }
     }
 }
