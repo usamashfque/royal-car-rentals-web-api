@@ -207,5 +207,27 @@ namespace royal_car_rentals_web_api.Controllers
 
             return driverCounts;
         }
+
+        // POST api/Driver/authentication
+        [HttpPost("authentication")]
+        public async Task<ActionResult<Driver>> DriverAuthentication([FromBody] Admin driver)
+        {
+            var result = await _context.Drivers.FirstOrDefaultAsync(a => a.Email == driver.Email && a.Password == driver.Password);
+
+            //bool status = (bool)!result.IsActive ? false : true;
+
+            if (result == null)
+            {
+                return NotFound();
+            }
+            else if ((bool)!result.IsActive)
+            {
+                return NotFound("inactive");
+            }
+
+            result.Password = null;
+
+            return result;
+        }
     }
 }

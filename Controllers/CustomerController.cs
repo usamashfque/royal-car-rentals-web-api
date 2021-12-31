@@ -189,6 +189,27 @@ namespace royal_car_rentals_web_api.Controllers
         [HttpPost("signup")]
         public async Task<ActionResult<Customer>> SignUpCustomer([FromBody] Customer customer)
         {
+            var email_result = await _context.Customers.FirstOrDefaultAsync(a => a.Email == customer.Email);
+
+            if (email_result != null)
+            {
+                return NotFound("email_already_registered");
+            }
+
+            var phone_result = await _context.Customers.FirstOrDefaultAsync(a => a.PhoneNumber == customer.PhoneNumber);
+
+            if (phone_result != null)
+            {
+                return NotFound("phone_already_registered");
+            }
+
+            var licenceNo_result = await _context.Customers.FirstOrDefaultAsync(a => a.LicenceNo == customer.LicenceNo);
+
+            if (licenceNo_result != null)
+            {
+                return NotFound("licenceno_already_registered");
+            }
+
             customer.DateAdded = DateTime.Now;
             customer.DateUpdated = DateTime.Now;
             customer.ProfilePicture = "";
@@ -358,7 +379,7 @@ namespace royal_car_rentals_web_api.Controllers
 
         [HttpPost("SendVerificationEmail")]
         public async Task<ActionResult<String>> SendVerificationEmail(Customer customer)
-        {            
+        {
             if (customer == null)
             {
                 return NotFound();
@@ -373,10 +394,10 @@ namespace royal_car_rentals_web_api.Controllers
             var to = new EmailAddress(customer.Email, customer.FirstName + customer.LastName);
 
             var plainTextContent = "";
-            var htmlContent = "<p>Hi " + customer.FirstName +" "+ customer.LastName + ",<br><br>We just need to verify your email address before you can book any vehicle.<br>Verify your email address by using verification code.<br><br><strong> Verification Code is " + code + " </strong><br><br>Best regards, <br>Royal Car Rentals</p>";
+            var htmlContent = "<p>Hi " + customer.FirstName + " " + customer.LastName + ",<br><br>We just need to verify your email address before you can book any vehicle.<br>Verify your email address by using verification code.<br><br><strong> Verification Code is " + code + " </strong><br><br>Best regards, <br>Royal Car Rentals</p>";
 
             var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
-            var response = await client.SendEmailAsync(msg);            
+            var response = await client.SendEmailAsync(msg);
 
             var _verificationCode = await _context.VerificationCodes.Where(c => c.CustomerId == customer.Id).FirstOrDefaultAsync();
 
@@ -404,7 +425,7 @@ namespace royal_car_rentals_web_api.Controllers
 
             await _context.SaveChangesAsync();
 
-             
+
 
             return "OK";
         }
@@ -427,7 +448,7 @@ namespace royal_car_rentals_web_api.Controllers
             TwilioClient.Init(accountSid, authToken);
 
             var message = MessageResource.Create(
-                body: "Hello "+ customer.FirstName + customer.LastName + ". Your verification code is: " + code,
+                body: "Hello " + customer.FirstName + customer.LastName + ". Your verification code is: " + code,
                 from: new Twilio.Types.PhoneNumber("+18505346063"),
                 to: new Twilio.Types.PhoneNumber("+923025613316")
             );
