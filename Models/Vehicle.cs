@@ -24,9 +24,9 @@ namespace royal_car_rentals_web_api.Models
         public DateTime? DateAdded { get; set; }
         public DateTime? DateUpdated { get; set; }
 
-        public virtual City City { get; set; } = null!;
-        public virtual VehicleMaker Maker { get; set; } = null!;
-        public virtual VehicleModel Model { get; set; } = null!;
-        public virtual ICollection<Booking> Bookings { get; set; }
+        public virtual City? City { get; set; } = null!;
+        public virtual VehicleMaker? Maker { get; set; } = null!;
+        public virtual VehicleModel? Model { get; set; } = null!;
+        public virtual ICollection<Booking>? Bookings { get; set; }
     }
 }

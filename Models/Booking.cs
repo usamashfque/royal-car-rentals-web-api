@@ -28,6 +28,6 @@ namespace royal_car_rentals_web_api.Models
         public virtual Customer? Customer { get; set; }
         public virtual Driver? Driver { get; set; }
         public virtual Vehicle? Vehicle { get; set; }
-        public virtual ICollection<Payment> Payments { get; set; }
+        public virtual ICollection<Payment>? Payments { get; set; }
     }
 }

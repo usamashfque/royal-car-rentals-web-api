@@ -59,7 +59,7 @@ namespace royal_car_rentals_web_api.Controllers
                 var vehicle = (from _vehicle in _context.Vehicles
                                join _maker in _context.VehicleMakers on _vehicle.MakerId equals _maker.Id
                                join _model in _context.VehicleModels on _vehicle.ModelId equals _model.Id
-                               
+
                                select new Vehicle()
                                {
                                    Id = _vehicle.Id,
@@ -76,7 +76,7 @@ namespace royal_car_rentals_web_api.Controllers
                                    DateAdded = _vehicle.DateAdded,
                                    DateUpdated = _vehicle.DateUpdated,
                                    Maker = _maker,
-                                   Model = _model,                                 
+                                   Model = _model,
                                }).Where(a => a.Id == item.VehicleId).FirstOrDefault();
 
                 item.Vehicle = vehicle;
@@ -97,7 +97,8 @@ namespace royal_car_rentals_web_api.Controllers
                 return NotFound();
             }
 
-            if ((bool)booking.WithDriver) {
+            if ((bool)booking.WithDriver)
+            {
                 var result = await (from _booking in _context.Bookings
                                     join customer in _context.Customers on _booking.CustomerId equals customer.Id
                                     join vehicle in _context.Vehicles on _booking.VehicleId equals vehicle.Id
@@ -156,7 +157,7 @@ namespace royal_car_rentals_web_api.Controllers
 
 
                 return result;
-            }            
+            }
         }
 
         // PUT: api/Booking/5      
@@ -171,7 +172,7 @@ namespace royal_car_rentals_web_api.Controllers
             booking.Customer = null;
             booking.Driver = null;
             booking.Vehicle = null;
-            booking.City = null;            
+            booking.City = null;
 
             booking.DateUpdated = DateTime.Now;
             _context.Entry(booking).State = EntityState.Modified;
@@ -366,5 +367,96 @@ namespace royal_car_rentals_web_api.Controllers
 
             return bookingCounts;
         }
+
+
+        // GET: api/Booking/driverbookings/5
+        [HttpGet("driverbookings/{id}")]
+        public async Task<ActionResult<IEnumerable<Booking>>> GetDriverBookings(int id)
+        {
+            var __driver = await _context.Drivers.FindAsync(id);
+
+            if (__driver == null)
+            {
+                return NotFound();
+            }
+
+            var result = await (from _booking in _context.Bookings
+                                join customer in _context.Customers on _booking.CustomerId equals customer.Id
+                                join driver in _context.Drivers on _booking.DriverId equals driver.Id
+                                select new Booking()
+                                {
+                                    Id = _booking.Id,
+                                    CustomerId = _booking.CustomerId,
+                                    DriverId = _booking.DriverId,
+                                    VehicleId = _booking.VehicleId,
+                                    Status = _booking.Status,
+                                    WithDriver = _booking.WithDriver,
+                                    StartDate = _booking.StartDate,
+                                    StartTime = _booking.StartTime,
+                                    EndDate = _booking.EndDate,
+                                    EndTime = _booking.EndTime,
+                                    DateAdded = _booking.DateAdded,
+                                    DateUpdated = _booking.DateUpdated,
+                                    Customer = customer,
+                                    Driver = driver,
+                                    Vehicle = null
+                                }).Where(a => a.DriverId == id).ToListAsync();
+
+
+            List<Booking> resultList = new List<Booking>();
+
+            foreach (var item in result)
+            {
+
+                var vehicle = (from _vehicle in _context.Vehicles
+                               join _maker in _context.VehicleMakers on _vehicle.MakerId equals _maker.Id
+                               join _model in _context.VehicleModels on _vehicle.ModelId equals _model.Id
+                               join _city in _context.Cities on _vehicle.CityId equals _city.Id
+                               select new Vehicle()
+                               {
+                                   Id = _vehicle.Id,
+                                   MakerId = _vehicle.MakerId,
+                                   ModelId = _vehicle.ModelId,
+                                   CityId = _vehicle.CityId,
+                                   ModelYear = _vehicle.ModelYear,
+                                   RegistrationNumber = _vehicle.RegistrationNumber,
+                                   Color = _vehicle.Color,
+                                   Status = _vehicle.Status,
+                                   Availability = _vehicle.Availability,
+                                   Price = _vehicle.Price,
+                                   ImagesPath = _vehicle.ImagesPath,
+                                   DateAdded = _vehicle.DateAdded,
+                                   DateUpdated = _vehicle.DateUpdated,
+                                   Maker = _maker,
+                                   Model = _model,
+                                   City = _city
+                               }).Where(a => a.Id == item.VehicleId).FirstOrDefault();
+
+                item.Vehicle = vehicle;
+                resultList.Add(item);
+            }
+
+            return resultList;
+        }
+
+        // GET: api/Booking/drivercounts/5
+        [HttpGet("drivercounts/{id}")]
+        public async Task<ActionResult<BookingCounts>> GetDriverBookingCounts(int id)
+        {
+            BookingCounts bookingCounts = new BookingCounts();
+
+            bookingCounts.TotalBookings = await _context.Bookings.CountAsync();
+            bookingCounts.PendingBookings = await _context.Bookings.Where(a => a.DriverId == id && a.Status == "pending").CountAsync();
+            bookingCounts.ScheduledBookings = await _context.Bookings.Where(a => a.DriverId == id && a.Status == "approved").CountAsync();
+            bookingCounts.CompletedBookings = await _context.Bookings.Where(a => a.DriverId == id && a.Status == "completed").CountAsync();
+            bookingCounts.CalcelledBookings = await _context.Bookings.Where(a => a.DriverId == id && a.Status == "calcelled").CountAsync();
+
+            return bookingCounts;
+        }
+
+
+
+
+
     }
 }
