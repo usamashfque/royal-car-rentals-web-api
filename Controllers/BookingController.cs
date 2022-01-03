@@ -217,7 +217,7 @@ namespace royal_car_rentals_web_api.Controllers
             vehicleOld.Availability = false;
             vehicleOld.DateUpdated = DateTime.Now;
 
-            _context.Entry(vehicleOld).State = EntityState.Modified;
+            _context.Entry(vehicleOld).State = EntityState.Modified;           
 
             await _context.SaveChangesAsync();
 
