@@ -22,6 +22,7 @@ namespace royal_car_rentals_web_api.Models
         public virtual DbSet<City> Cities { get; set; } = null!;
         public virtual DbSet<Customer> Customers { get; set; } = null!;
         public virtual DbSet<Driver> Drivers { get; set; } = null!;
+        public virtual DbSet<Feedback> Feedbacks { get; set; } = null!;
         public virtual DbSet<Inquiry> Inquiries { get; set; } = null!;
         public virtual DbSet<Payment> Payments { get; set; } = null!;
         public virtual DbSet<Vehicle> Vehicles { get; set; } = null!;
@@ -170,6 +171,22 @@ namespace royal_car_rentals_web_api.Models
                     .HasForeignKey(d => d.CityId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Drivers_Cities");
+            });
+
+            modelBuilder.Entity<Feedback>(entity =>
+            {
+                entity.Property(e => e.Comment).HasMaxLength(100);
+
+                entity.Property(e => e.DateAdded).HasColumnType("datetime");
+
+                entity.Property(e => e.DateUpdated).HasColumnType("datetime");
+
+                entity.Property(e => e.Rating).HasColumnType("decimal(2, 1)");
+
+                entity.HasOne(d => d.Booking)
+                    .WithMany(p => p.Feedbacks)
+                    .HasForeignKey(d => d.BookingId)
+                    .HasConstraintName("FK_Feedbacks_Bookings");
             });
 
             modelBuilder.Entity<Inquiry>(entity =>

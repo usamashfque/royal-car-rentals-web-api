@@ -25,21 +25,61 @@ namespace royal_car_rentals_web_api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Driver>>> GetDrivers()
         {
-            return await _context.Drivers.ToListAsync();
+            //return await _context.Drivers.ToListAsync();
+
+            var result = await (from drivers in _context.Drivers
+                                join city in _context.Cities on drivers.CityId equals city.Id
+                                select new Driver()
+                                {
+                                    Id = drivers.Id,
+                                    FirstName = drivers.FirstName,
+                                    LastName = drivers.LastName,
+                                    Email = drivers.Email,
+                                    Password = drivers.Password,
+                                    PhoneNumber = drivers.PhoneNumber,
+                                    Address = drivers.Address,
+                                    IsActive = drivers.IsActive,
+                                    Availability = drivers.Availability,
+                                    LicenceNo = drivers.LicenceNo,
+                                    ProfilePicture = drivers.ProfilePicture,
+                                    DateAdded = drivers.DateAdded,
+                                    DateUpdated = drivers.DateUpdated,
+                                    City = city
+                                }).ToListAsync();
+
+            return result;
         }
 
         // GET: api/Driver/searchbycity/5
         [HttpGet("searchbycity/{cityId}")]
         public async Task<ActionResult<IEnumerable<Driver>>> GetDriversByCityId(int cityId)
         {
-            return await _context.Drivers.Where(a=>a.CityId == cityId).ToListAsync();
+            return await _context.Drivers.Where(a => a.CityId == cityId).ToListAsync();
         }
 
         // GET api/Driver/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Driver>> GetDriver(int id)
         {
-            var driver = await _context.Drivers.FindAsync(id);
+            var driver = await (from drivers in _context.Drivers
+                                join city in _context.Cities on drivers.CityId equals city.Id
+                                select new Driver()
+                                {
+                                    Id = drivers.Id,
+                                    FirstName = drivers.FirstName,
+                                    LastName = drivers.LastName,
+                                    Email = drivers.Email,
+                                    Password = drivers.Password,
+                                    PhoneNumber = drivers.PhoneNumber,
+                                    Address = drivers.Address,
+                                    IsActive = drivers.IsActive,
+                                    Availability = drivers.Availability,
+                                    LicenceNo = drivers.LicenceNo,
+                                    ProfilePicture = drivers.ProfilePicture,
+                                    DateAdded = drivers.DateAdded,
+                                    DateUpdated = drivers.DateUpdated,
+                                    City = city
+                                }).Where(a => a.Id == id).FirstOrDefaultAsync();
 
             if (driver == null)
             {
@@ -53,13 +93,13 @@ namespace royal_car_rentals_web_api.Controllers
         [HttpPost]
         public async Task<ActionResult<Driver>> PostVehicle([FromForm] FileUpload formdata)
         {
-            #pragma warning disable CS8604 // Possible null reference argument.
+#pragma warning disable CS8604 // Possible null reference argument.
             var driver = JsonConvert.DeserializeObject<Driver>(formdata.Info);
-            #pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8604 // Possible null reference argument.
 
-            #pragma warning disable CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
             driver.City = null;
-            #pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
 
             driver.DateAdded = DateTime.Now;
             driver.DateUpdated = DateTime.Now;

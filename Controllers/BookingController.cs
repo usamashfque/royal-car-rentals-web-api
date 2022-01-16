@@ -217,7 +217,7 @@ namespace royal_car_rentals_web_api.Controllers
             vehicleOld.Availability = false;
             vehicleOld.DateUpdated = DateTime.Now;
 
-            _context.Entry(vehicleOld).State = EntityState.Modified;           
+            _context.Entry(vehicleOld).State = EntityState.Modified;
 
             await _context.SaveChangesAsync();
 
@@ -276,6 +276,7 @@ namespace royal_car_rentals_web_api.Controllers
                                 select new Booking()
                                 {
                                     Id = _booking.Id,
+                                    CityId = _booking.CityId,
                                     CustomerId = _booking.CustomerId,
                                     DriverId = _booking.DriverId,
                                     VehicleId = _booking.VehicleId,
@@ -288,7 +289,9 @@ namespace royal_car_rentals_web_api.Controllers
                                     DateAdded = _booking.DateAdded,
                                     DateUpdated = _booking.DateUpdated,
                                     Customer = customer,
-                                    Vehicle = null
+                                    Vehicle = null,
+                                    City = null,
+                                    Driver = null
                                 }).Where(a => a.CustomerId == id).ToListAsync();
 
 
@@ -386,6 +389,7 @@ namespace royal_car_rentals_web_api.Controllers
                                 select new Booking()
                                 {
                                     Id = _booking.Id,
+                                    CityId = _booking.CityId,
                                     CustomerId = _booking.CustomerId,
                                     DriverId = _booking.DriverId,
                                     VehicleId = _booking.VehicleId,
@@ -399,7 +403,8 @@ namespace royal_car_rentals_web_api.Controllers
                                     DateUpdated = _booking.DateUpdated,
                                     Customer = customer,
                                     Driver = driver,
-                                    Vehicle = null
+                                    Vehicle = null,
+                                    City = null
                                 }).Where(a => a.DriverId == id).ToListAsync();
 
 

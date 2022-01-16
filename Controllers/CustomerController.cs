@@ -229,20 +229,29 @@ namespace royal_car_rentals_web_api.Controllers
         [HttpPost("signin")]
         public async Task<ActionResult<Customer>> SignInCustomer([FromBody] Customer customer)
         {
-            var result = await _context.Customers.FirstOrDefaultAsync(a => a.Email == customer.Email && a.Password == customer.Password);
+            var email_result = await _context.Customers.FirstOrDefaultAsync(a => a.Email == customer.Email);
 
-            if (result == null)
+            if (email_result == null)
             {
-                return NotFound();
+                return NotFound("incorrect_email");
             }
-            //else if ((bool)!result.IsActive)
+
+            var password_result = await _context.Customers.FirstOrDefaultAsync(a => a.Email == customer.Email && a.Password == customer.Password);
+
+            if (password_result == null)
+            {
+                return NotFound("incorrect_password");
+            }
+
+
+            //if ((bool)!result.IsActive)
             //{
             //    return NotFound();
             //}
 
-            result.Password = null;
+            password_result.Password = null;
 
-            return result;
+            return password_result;
         }
 
         // DELETE: api/Customer/5
