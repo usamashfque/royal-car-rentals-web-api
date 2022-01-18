@@ -42,6 +42,20 @@ namespace royal_car_rentals_web_api.Controllers
             return feedback;
         }
 
+        // GET: api/Feedback/getbybookingid/5
+        [HttpGet("getbybookingid/{id}")]
+        public async Task<ActionResult<IEnumerable<Feedback>>> GetFeedbackByBookingId(int id)
+        {
+            var feedback = await _context.Feedbacks.Where(f => f.BookingId == id).ToListAsync();
+
+            if (feedback == null)
+            {
+                return NotFound();
+            }
+
+            return feedback;
+        }
+
         // PUT: api/Feedback/5        
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFeedback(int id, Feedback feedback)
